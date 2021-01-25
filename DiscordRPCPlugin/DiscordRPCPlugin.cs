@@ -92,7 +92,7 @@ namespace overwolf.plugins
             callback(new SuccessCallbackResponse());
         }
 
-        /// <summary>
+       /// <summary>
         /// 
         /// </summary>
         /// <param name="details"></param>
@@ -101,11 +101,24 @@ namespace overwolf.plugins
         /// <param name="largeImageText"></param>
         /// <param name="smallImageKey"></param>
         /// <param name="smallImageText"></param>
+        /// <param name="startTimestamp"></param>
+        /// <param name="endTimestamp"></param>
         /// <param name="callback"></param>
-        public void updatePresence(string details, string state, string largeImageKey, string largeImageText, string smallImageKey, string smallImageText, Action<object> callback)
+        public void updatePresence(string details, string state, string largeImageKey, string largeImageText, string smallImageKey, string smallImageText, Action<object> callback, Int64 startTimestamp = 0, Int64 endTimestamp = 0)
         {
             if (client == null)
                 callback(new ErrorCallbackResponse() { error = "Call initialize first" });
+
+            var startEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var endEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var timestamps = new Timestamps();
+            var startingTime = startTime;
+
+            if (startTimestamp != 0)
+                timestamps = new Timestamps(startEpoch.AddSeconds(startTimestamp));
+
+            if (endTimestamp != 0)
+                timestamps = new Timestamps(startingTime, endEpoch.AddSeconds(endTimestamp));
 
             client.SetPresence(new RichPresence()
             {
@@ -118,9 +131,8 @@ namespace overwolf.plugins
                     LargeImageText = largeImageText,
                     SmallImageText = smallImageText
                 },
-                Timestamps = new Timestamps(startTime, DateTime.Now)              
+                Timestamps = timestamps
             });
-
             callback(new SuccessCallbackResponse());
         }
 
